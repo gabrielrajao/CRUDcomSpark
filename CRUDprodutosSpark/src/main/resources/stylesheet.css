@@ -1,0 +1,141 @@
+
+/*  CABECALHO  */
+header{
+    position: fixed;
+    width: 100%;
+    height: auto;
+    z-index: 999;
+    background-color: #47EB81;
+    padding: 1%;
+    box-shadow: 0px 1px 9px #21AB51;
+    
+    
+}
+header h1{
+    color: #294936;
+    font-weight: 800;
+}
+header a{
+    color: #294936;
+    text-decoration: none;
+    font-weight: 450;
+    font-size: 17pt;
+}
+header a:hover{
+    color: #21AB51;
+    font-size: 19pt;
+}
+header ul{
+    list-style: none;
+}
+header li{
+    padding-left: 6%;
+    display: inline;
+}
+
+/*  CABECALHO FIM  */
+
+/*   ARTICLE     */
+
+
+article{
+    background-color: #ABC4B2;
+    width: 100%;
+    min-height: 100vmin;
+}
+
+#main{
+    background-color: #DAFBE6;
+    min-height: 100vmin;
+    padding-top: 10%;
+}
+#produtos{
+    background-color: #CDE0DB;
+    color: #294936;
+    box-shadow: 0 1px 5px 1px;
+}
+article a {
+    text-decoration: none;
+    
+}
+#produtos:hover {
+    font-size: larger;
+    color: #446d54;
+    
+}
+
+article ul{
+    list-style: none;
+}
+article li{
+    display: inline;
+}
+
+article button{
+    border-color: #CDE0DB;
+    color: #294936;
+    background-color: #DAFBE6;
+    border-radius: 4px;
+    box-shadow: 0px 1px 2px;
+
+}
+article button:hover{
+    font-size: larger ;
+}
+
+/*   ARTICLE FIM  */
+
+/*   FOOTER    */
+
+footer{
+    background-color: #47EB81;
+    height: 100%;
+    padding: 2%;
+    
+}
+footer ul{
+    list-style: none;
+}
+footer a{
+    text-decoration: none;
+}
+
+footer h3{
+    color: #294936;
+    font-weight: 650;
+}
+footer a{
+    color: #294936;
+    text-decoration: none;
+    font-weight: 450;
+    font-size: 15pt;
+}
+footer a:hover{
+    color: #21AB51;
+    font-size: 17pt;
+}
+
+/*   FOOTER FIM    */
+
+/* BOTAO FORM */
+
+#postaplanta{
+    border-color: #d0e8e2;
+    color: #1d3828;
+    font-weight: 700;
+    background-color: #47EB81;
+    border-radius: 4px;
+    border-style:solid;
+    border-width: 1px;
+    border-color: #1d3828;
+    padding: 1%;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+#postaplanta:hover {
+    font-size: larger;
+    color: #446d54;
+    background-color: #96deaf;
+    
+}
+/* FIM BOTAO FORM */
