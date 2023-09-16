@@ -1,123 +1,129 @@
 package dao;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import model.Planta; 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Planta;
-
-public class PlantaDAO {
-	private List<Planta> produtos;
-	private int maxId = 0;
-
-	private File file;
-	private FileOutputStream fos;
-	private ObjectOutputStream outputFile;
-
-	public int getMaxId() {
-		return maxId;
+public class PlantaDAO extends DAO{
+	public PlantaDAO() {
+		super();
+		conectar();
 	}
-
-	public PlantaDAO(String filename) throws IOException {
-		file = new File(filename);
-		produtos = new ArrayList<Planta>();
-		if (file.exists()) {
-			readFromFile();
-		}
-
+	
+	
+	public void finalize() {
+		close();
 	}
-
-	public void add(Planta produto) {
+	
+	
+	public boolean insert(Planta Planta) {
+		boolean status = false;
 		try {
-			produtos.add(produto);
-			this.maxId = (produto.getId() > this.maxId) ? produto.getId() : this.maxId;
-			this.saveToFile();
-		} catch (Exception e) {
-			System.out.println("ERRO ao gravar a planta '" + produto.getNome() + "' no disco!");
+			String sql = "INSERT INTO Planta (descricao, preco, idade, nome) "
+		               + "VALUES ('" + Planta.getDescricao() + "', "
+		               + Planta.getPreco() + ", " + Planta.getIdade() + ", '"+Planta.getNome()+"');";
+			PreparedStatement st = conexao.prepareStatement(sql);
+			st.executeUpdate();
+			st.close();
+			status = true;
+		} catch (SQLException u) {  
+			throw new RuntimeException(u);
 		}
+		return status;
 	}
 
+	
 	public Planta get(int id) {
-		for (Planta produto : produtos) {
-			if (id == produto.getId()) {
-				return produto;
-			}
-		}
-		return null;
-	}
-
-	public void update(Planta p) {
-		int index = produtos.indexOf(p);
-		if (index != -1) {
-			produtos.set(index, p);
-			this.saveToFile();
-		}
-	}
-
-	public void remove(Planta p) {
-		int index = produtos.indexOf(p);
-		if (index != -1) {
-			produtos.remove(index);
-			this.saveToFile();
-		}
-	}
-
-	public List<Planta> getAll() {
-		return produtos;
-	}
-
-	private List<Planta> readFromFile() {
-		produtos.clear();
-		Planta produto = null;
-		try (FileInputStream fis = new FileInputStream(file);
-				ObjectInputStream inputFile = new ObjectInputStream(fis)) {
-
-			while (fis.available() > 0) {
-				produto = (Planta) inputFile.readObject();
-				produtos.add(produto);
-				maxId = (produto.getId() > maxId) ? produto.getId() : maxId;
-			}
-		} catch (Exception e) {
-			System.out.println("ERRO ao ler planta do disco!");
-			e.printStackTrace();
-		}
-		return produtos;
-	}
-
-	private void saveToFile() {
+		Planta Planta = null;
+		
 		try {
-			fos = new FileOutputStream(file, false);
-			outputFile = new ObjectOutputStream(fos);
-
-			for (Planta produto : produtos) {
-				outputFile.writeObject(produto);
-			}
-			outputFile.flush();
-			this.close();
+			Statement st = conexao.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+			String sql = "SELECT * FROM Planta WHERE id="+id;
+			ResultSet rs = st.executeQuery(sql);	
+	        if(rs.next()){            
+	        	 Planta = new Planta(rs.getInt("id"), rs.getString("nome"), rs.getString("descricao"), 
+	        			 (float)rs.getDouble("preco"), rs.getInt("idade"));
+	        }
+	        st.close();
 		} catch (Exception e) {
-			System.out.println("ERRO ao gravar planta no disco!");
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
+		return Planta;
+	}
+	
+	
+	public List<Planta> get() {
+		return get("");
 	}
 
-	private void close() throws IOException {
-		outputFile.close();
-		fos.close();
+	
+	public List<Planta> getOrderByID() {
+		return get("id");		
 	}
-
-	@Override
-	protected void finalize() throws Throwable {
+	
+	
+	public List<Planta> getOrderByDescricao() {
+		return get("descricao");		
+	}
+	
+	
+	public List<Planta> getOrderByPreco() {
+		return get("preco");		
+	}
+	
+	
+	private List<Planta> get(String orderBy) {
+		List<Planta> Plantas = new ArrayList<Planta>();
+		
 		try {
-			this.saveToFile();
-			this.close();
+			Statement st = conexao.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+			String sql = "SELECT * FROM Planta" + ((orderBy.trim().length() == 0) ? "" : (" ORDER BY " + orderBy));
+			ResultSet rs = st.executeQuery(sql);	           
+	        while(rs.next()) {	            	
+	        	Planta p = 	new Planta(rs.getInt("id"), rs.getString("nome"), rs.getString("descricao"), 
+	        			 (float)rs.getDouble("preco"), rs.getInt("idade"));
+	            Plantas.add(p);
+	        }
+	        st.close();
 		} catch (Exception e) {
-			System.out.println("ERRO ao salvar a base de dados no disco!");
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
+		return Plantas;
+	}
+	
+	
+	public boolean update(Planta Planta) {
+		boolean status = false;
+		try {  
+			String sql = "UPDATE Planta SET descricao = '" + Planta.getDescricao() + "', "
+					   + "preco = " + Planta.getPreco() + ", " 
+					   + "nome = " + Planta.getNome() + ","
+					   + "idade = " + Planta.getIdade();
+			PreparedStatement st = conexao.prepareStatement(sql);
+			st.executeUpdate();
+			st.close();
+			status = true;
+		} catch (SQLException u) {  
+			throw new RuntimeException(u);
+		}
+		return status;
+	}
+	
+	
+	public boolean delete(int id) {
+		boolean status = false;
+		try {  
+			Statement st = conexao.createStatement();
+			st.executeUpdate("DELETE FROM Planta WHERE id = " + id);
+			st.close();
+			status = true;
+		} catch (SQLException u) {  
+			throw new RuntimeException(u);
+		}
+		return status;
 	}
 }

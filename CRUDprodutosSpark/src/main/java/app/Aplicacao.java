@@ -1,6 +1,7 @@
 package app;
 import spark.*;
 
+import static spark.Spark.staticFiles;
 
 import service.PlantaService;
 
@@ -11,8 +12,8 @@ public class Aplicacao {
 	
     public static void main(String[] args) {
     	Spark.port(6789);
-        // Enable CORS for all routes
-
+        
+    	staticFiles.location("/public");
 
         Spark.before((request, response) -> {
             response.header("Access-Control-Allow-Origin", "*");
@@ -29,7 +30,6 @@ public class Aplicacao {
             response.redirect("http://127.0.0.1:5500/index.html");
             return null;
         });
-
         Spark.get("/planta/:id", (request, response) -> produtoService.get(request, response));
 
         Spark.get("/planta/update/:id", (request, response) -> {

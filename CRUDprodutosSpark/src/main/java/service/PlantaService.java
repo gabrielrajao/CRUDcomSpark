@@ -10,20 +10,12 @@ import model.Planta;
 import spark.Request;
 import spark.Response;
 
-
 public class PlantaService {
 
 
-	private PlantaDAO produtoDAO;
+	private PlantaDAO produtoDAO = new PlantaDAO();;
 
 
-	public PlantaService() {
-		try {
-			produtoDAO = new PlantaDAO("planta.dat");
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-		}
-	}
 	
 
 	public Object add(Request request, Response response) throws IOException {
@@ -32,14 +24,19 @@ public class PlantaService {
 		float preco = Float.parseFloat(request.queryParams("preco"));
 		int idade = Integer.parseInt(request.queryParams("idade"));
 
-		int id = produtoDAO.getMaxId() + 1;
 
-		Planta produto = new Planta(id, nome, descricao, preco, idade);
+		Planta produto = new Planta(-1, nome, descricao, preco, idade);
 
-		produtoDAO.add(produto);
-
-		response.status(201); // 201 Created
-		return id;
+		String resp = "";
+		if(produtoDAO.insert(produto) == true) {
+            resp = "Produto (" + descricao + ") inserido!";
+            response.status(201); // 201 Created
+		} else {
+			resp = "Produto (" + descricao + ") não inserido!";
+			response.status(404); // 404 Not found
+		}
+			
+		return  resp;
 	}
 
 	public Object get(Request request, Response response)  {
@@ -92,7 +89,7 @@ public class PlantaService {
 
         if (produto != null) {
 
-            produtoDAO.remove(produto);
+            produtoDAO.delete(produto.getId());
 
             response.status(200); // success
         	return id;
@@ -104,7 +101,7 @@ public class PlantaService {
 
 	public Object getAll(Request request, Response response) {
 		StringBuffer returnValue = new StringBuffer("<produtos type=\"array\">");
-		for (Planta produto : produtoDAO.getAll()) {
+		for (Planta produto : produtoDAO.get()) {
 			returnValue.append("\n<produto>\n" + 
 					"\t<id>" + produto.getId() + "</id>\n" +
             		"\t<descricao>" + produto.getDescricao() + "</descricao>\n" +
